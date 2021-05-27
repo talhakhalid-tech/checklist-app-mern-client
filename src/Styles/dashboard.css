@@ -1,0 +1,71 @@
+.dashboard-container {
+  margin-top: 6vh;
+  width: 100%;
+  background-color: rgb(245, 239, 239);
+  min-height: 94vh;
+}
+.dashboard-header {
+  width: auto;
+  padding: 100px 100px 0px 100px;
+}
+.dashboard-folder-name {
+  font-size: 26px;
+  font-weight: 700;
+  color: grey;
+}
+.dashboard-searchbar {
+  width: 15vw;
+  padding: 10px 0px;
+  display: flex;
+  position: relative;
+}
+.dashboard-searchbar input {
+  padding: 12px 15px;
+  width: inherit;
+  border-radius: 5px;
+  border: none;
+  color: grey;
+  background-color: rgba(236, 231, 231, 0.774);
+  outline: none;
+}
+.dashboard-searchbar-icon {
+  position: absolute;
+  align-self: center;
+  right: 20px;
+  font-size: 20px;
+  color: grey;
+  cursor: pointer;
+}
+.dashboard-checklists {
+  padding: 50px 100px 0px 100px;
+}
+.dashboard-checklist-list {
+  width: 100%;
+  border-collapse: collapse;
+}
+.dashboard-checklist-list-head th {
+  padding: 10px 0px;
+  margin: 0;
+  outline: none;
+  border-bottom: 1px solid grey !important;
+  text-align: left;
+}
+.dashboard-checklist-list-name-heading {
+  width: 55%;
+}
+.dashboard-checklist-list-completed-heading {
+  width: 20%;
+}
+.dashboard-checklist-list-total-heading {
+  width: 20%;
+}
+.dashboard-checklist-list-delete-heading {
+  width: 5%;
+}
+.dashboard-checklist-list tr td {
+  padding: 5px 10px;
+  color: grey;
+}
+.dashboard-checklist-delete-icon {
+  font-size: 20px;
+}

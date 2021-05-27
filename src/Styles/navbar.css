@@ -1,0 +1,48 @@
+.navbar {
+  width: 100%;
+  height: 6vh;
+  display: flex;
+  align-items: center;
+  color: grey;
+  background-color: white;
+  justify-content: space-between;
+  position: fixed;
+  top: 0px;
+  z-index: 1;
+}
+
+.navbar-title {
+  padding: 10px 20px;
+  font-size: 22px;
+  letter-spacing: 2px;
+  /* color: white; */
+  font-weight: 600;
+}
+
+.navbar-folder-select {
+  width: 250px;
+  outline: none;
+  padding: 5px;
+  border-radius: 5px;
+  color: grey;
+  border: 2px solid grey;
+}
+
+.navbar-btns {
+  display: flex;
+}
+.navbar-btn {
+  /* color: white; */
+  height: 3vh;
+  padding: 0px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s linear;
+  cursor: pointer;
+  border-radius: 5px;
+}
+.navbar-btn:hover {
+  background-color: rgb(153, 149, 149);
+  color: white;
+}
