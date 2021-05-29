@@ -69,3 +69,22 @@
 .dashboard-checklist-delete-icon {
   font-size: 20px;
 }
+.dashboard-checklist-addbtn {
+  width: 100%;
+  height: 30px;
+  margin-top: 10px;
+  /* background-color: lightgray;*/
+  border: 1px solid lightgray;
+  border-radius: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  color: grey;
+  cursor: pointer;
+}
+.dashboard-checklist-addbtn span {
+  font-size: 18px;
+  font-weight: 500;
+  margin-left: 10px;
+}

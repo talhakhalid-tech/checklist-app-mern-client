@@ -1,33 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../Sections/Navbar";
 import "../Styles/dashboard.css";
 
-const processes = [
-  {
-    name: "process 1",
-    completedTasks: 7,
-    totalTasks: 10,
-  },
-  {
-    name: "process 2",
-    completedTasks: 17,
-    totalTasks: 25,
-  },
-  {
-    name: "process 3",
-    completedTasks: 12,
-    totalTasks: 20,
-  },
-];
+import AppModal from "../Components/AppModal";
 
 export default function Dashboard() {
+  const [checklists, setChecklists] = useState(() => {
+    return [
+      {
+        name: "checklist 1",
+        completedTasks: 7,
+        totalTasks: 10,
+      },
+      {
+        name: "checklist 2",
+        completedTasks: 17,
+        totalTasks: 25,
+      },
+      {
+        name: "checklist 3",
+        completedTasks: 12,
+        totalTasks: 20,
+      },
+    ];
+  });
+
+  const [addModal, setAddModal] = useState(() => false);
+  const [checklistName, setChecklistName] = useState(() => "");
+
   const renderChecklistsList = () => {
-    return processes.map((process) => {
+    return checklists.map((checklist) => {
       return (
         <tr>
-          <td>{process.name}</td>
-          <td>{process.completedTasks}</td>
-          <td>{process.totalTasks}</td>
+          <td>{checklist.name}</td>
+          <td>{checklist.completedTasks}</td>
+          <td>{checklist.totalTasks}</td>
           <td>
             <span className="dashboard-checklist-delete-icon">
               <i class="far fa-trash-alt"></i>
@@ -38,8 +45,37 @@ export default function Dashboard() {
     });
   };
 
+  const openAddModal = () => {
+    setAddModal(true);
+  };
+
+  const onChecklistAdd = () => {
+    if (checklistName.length < 3) {
+      return;
+    }
+    setChecklists((prevState) => {
+      if (!prevState.some((checklist) => checklist.name === checklistName))
+        prevState.push({
+          name: checklistName,
+          completedTasks: 0,
+          totalTasks: 0,
+        });
+      return prevState;
+    });
+    setAddModal(false);
+    setChecklistName("");
+  };
+
   return (
     <div className="dashboard">
+      <AppModal
+        modalIsOpen={addModal}
+        setIsOpen={setAddModal}
+        modalInputPlaceholder="Enter the name of Checklist"
+        modalInput={checklistName}
+        setModalInput={(value) => setChecklistName(value)}
+        onModalSave={onChecklistAdd}
+      />
       <Navbar folderSelectEnabled={true} />
       <div className="dashboard-container">
         <div className="dashboard-header">
@@ -47,7 +83,7 @@ export default function Dashboard() {
             Folder Name: Default Folder
           </div>
           <div className="dashboard-searchbar">
-            <input type="text" placeholder="Search Process..." />
+            <input type="text" placeholder="Search Checklist..." />
             <span className="dashboard-searchbar-icon">
               <i class="fas fa-search"></i>
             </span>
@@ -73,6 +109,12 @@ export default function Dashboard() {
               {renderChecklistsList()}
             </tbody>
           </table>
+          <div className="dashboard-checklist-addbtn" onClick={openAddModal}>
+            Click to Add Checklist{" "}
+            <span>
+              <i class="fas fa-plus"></i>
+            </span>
+          </div>
         </div>
       </div>
     </div>
