@@ -4,26 +4,11 @@ import "../Styles/dashboard.css";
 
 import AppModal from "../Components/AppModal";
 
-export default function Dashboard() {
-  const [checklists, setChecklists] = useState(() => {
-    return [
-      {
-        name: "checklist 1",
-        completedTasks: 7,
-        totalTasks: 10,
-      },
-      {
-        name: "checklist 2",
-        completedTasks: 17,
-        totalTasks: 25,
-      },
-      {
-        name: "checklist 3",
-        completedTasks: 12,
-        totalTasks: 20,
-      },
-    ];
-  });
+export default function Dashboard({ match, location }) {
+  console.log(match.params.folderId);
+  console.log(location.state);
+
+  const [checklists, setChecklists] = useState(() => []);
 
   const [addModal, setAddModal] = useState(() => false);
   const [checklistName, setChecklistName] = useState(() => "");
@@ -71,6 +56,7 @@ export default function Dashboard() {
       <AppModal
         modalIsOpen={addModal}
         setIsOpen={setAddModal}
+        modalTitle="Add Checklist"
         modalInputPlaceholder="Enter the name of Checklist"
         modalInput={checklistName}
         setModalInput={(value) => setChecklistName(value)}

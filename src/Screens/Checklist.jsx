@@ -31,9 +31,63 @@ export default function Checklist() {
 
   const [adderEnabled, setAdderEnabled] = useState(() => false);
   const [newChecklistValue, setNewChecklistValue] = useState(() => "");
+  const [editor, setEditor] = useState(() => {
+    return { title: "", enabled: false };
+  });
+
+  const editHandler = (item) => {
+    setNewChecklistValue(item.title);
+    setEditor({
+      title: item.title,
+      enabled: true,
+    });
+  };
+
+  const onEditItem = (item) => {
+    if (newChecklistValue.length < 3) {
+      return;
+    }
+    setChecklist((prevState) => {
+      if (!prevState.some((newItem) => newItem.title === newChecklistValue))
+        return prevState.map((newItem) => {
+          if (newItem.title === item.title)
+            return {
+              ...newItem,
+              title: newChecklistValue,
+            };
+          return newItem;
+        });
+      return prevState;
+    });
+    setEditor({ title: "", enabled: false });
+    setNewChecklistValue("");
+  };
 
   const renderList = () => {
     return checklist.map((item) => {
+      if (editor.enabled && editor.title === item.title) {
+        return (
+          <div className="checklist-single">
+            <input
+              type="checkbox"
+              className="checklist-checkbox"
+              disabled={true}
+            />
+            <input
+              type="text"
+              className="checklist-input"
+              value={newChecklistValue}
+              onChange={(elem) => setNewChecklistValue(elem.target.value)}
+            />
+            <span
+              className="checklist-save-icon"
+              onClick={() => onEditItem(item)}
+            >
+              <i class="far fa-save"></i>
+            </span>
+          </div>
+        );
+      }
       return (
         <div className="checklist-single">
           <input
@@ -44,7 +98,10 @@ export default function Checklist() {
               setChecklist((prevState) => {
                 return prevState.map((newItem) => {
                   if (newItem.title === item.title) {
-                    return { title: newItem.title, checked: !newItem.checked };
+                    return {
+                      title: newItem.title,
+                      checked: !newItem.checked,
+                    };
                   }
                   return newItem;
                 });
@@ -52,7 +109,10 @@ export default function Checklist() {
             }
           />
           <label className="checklist-text">{item.title}</label>
-          <span className="checklist-edit-icon">
+          <span
+            className="checklist-edit-icon"
+            onClick={() => editHandler(item)}
+          >
             <i class="far fa-edit"></i>
           </span>
           <span className="checklist-delete-icon">
@@ -64,7 +124,9 @@ export default function Checklist() {
   };
 
   const addButtonHandler = () => {
-    setAdderEnabled(true);
+    if (!editor.enabled) {
+      setAdderEnabled(true);
+    }
   };
 
   const onAddItem = () => {

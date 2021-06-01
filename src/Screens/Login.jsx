@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import decode from "jwt-decode";
 import "../Styles/login-register.css";
+
+import ChecklistUserApi from "../Apis/ChecklistUser";
+import ChecklistFolderApi from "../Apis/ChecklistFolder";
 
 export default function Login() {
   const history = useHistory();
@@ -13,6 +17,27 @@ export default function Login() {
 
   const [password, setPassword] = useState(() => "");
 
+  const [loginError, setLoginError] = useState(() => "");
+
+  const dashboardRedirect = async () => {
+    const userInfo = decode(localStorage.getItem("checklist-auth-token"));
+    const res = await ChecklistFolderApi.get(
+      `/defaultFolder?userId=${userInfo._id}`
+    );
+    history.push({
+      pathname: `/dashboard/${res.data.defaultFolder._id}`,
+      state: {
+        folder: res.data.defaultFolder,
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem("checklist-auth-token")) {
+      dashboardRedirect();
+    }
+  }, []);
+
   const visibilityHandler = () => {
     if (passwordVisible) {
       setPasswordType("password");
@@ -23,7 +48,20 @@ export default function Login() {
     setPasswordVisible(true);
   };
 
-  const loginHandler = () => {};
+  const loginHandler = async () => {
+    try {
+      const res = await ChecklistUserApi.post("/login", {
+        email,
+        password,
+      });
+      if (res.status === 200) {
+        localStorage.setItem("checklist-auth-token", res.data.token);
+        history.push("/dashboard");
+      }
+    } catch (error) {
+      setLoginError(error.response.data.error);
+    }
+  };
 
   return (
     <div className="login-container">
@@ -35,7 +73,10 @@ export default function Login() {
             placeholder="Email Address"
             type="text"
             value={email}
-            onChange={(elem) => setEmail(elem.target.value)}
+            onChange={(elem) => {
+              setEmail(elem.target.value);
+              setLoginError("");
+            }}
           />
         </div>
         <div className="login-input">
@@ -44,7 +85,10 @@ export default function Login() {
             placeholder="Password"
             type={passwordType}
             value={password}
-            onChange={(elem) => setPassword(elem.target.value)}
+            onChange={(elem) => {
+              setPassword(elem.target.value);
+              setLoginError("");
+            }}
           />
           {passwordVisible ? (
             <span className="login-input-icon" onClick={visibilityHandler}>
@@ -57,6 +101,7 @@ export default function Login() {
           )}
         </div>
         <div className="login-forgot-text">Forgot Password?</div>
+        {loginError ? <div className="login-error">{loginError}</div> : <></>}
         <button className="login-button" onClick={loginHandler}>
           Login
         </button>

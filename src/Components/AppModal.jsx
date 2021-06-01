@@ -26,6 +26,7 @@ export default function AppModal({
   modalIsOpen = false,
   setIsOpen = null,
   onModalSave = null,
+  modalTitle = "Add Modal",
   modalInputPlaceholder = "Enter...",
   onCloseModal = null,
   modalInput = "",
@@ -47,7 +48,7 @@ export default function AppModal({
         <span className="modal-close-icon" onClick={onCloseModal}>
           <i class="fas fa-times"></i>
         </span>
-        <div className="modal-heading">Add Checklist</div>
+        <div className="modal-heading">{modalTitle}</div>
         <input
           className="modal-input"
           value={modalInput}
