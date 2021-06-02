@@ -1,6 +1,6 @@
 import axios from "axios";
-import config from '../config/key'
+import config from "../Config/key";
 
 export default axios.create({
-    baseURL: config.ChecklistUserUrl
-})
+  baseURL: config.ChecklistUserUrl,
+});

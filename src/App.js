@@ -1,8 +1,9 @@
 import React from "react";
 import "./App.css";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { Router, Route, Switch } from "react-router-dom";
 
 import PrivateRoute from "./HOC/PrivateRoute";
+import history from "./history";
 
 import Login from "./Screens/Login";
 import Register from "./Screens/Register";
@@ -11,7 +12,7 @@ import Checklist from "./Screens/Checklist";
 
 function App() {
   return (
-    <Router>
+    <Router history={history}>
       <div>
         <Switch>
           <Route path="/" exact component={Login} />

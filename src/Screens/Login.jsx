@@ -1,25 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import decode from "jwt-decode";
+import { useDispatch, useSelector } from "react-redux";
 import "../Styles/login-register.css";
 
-import ChecklistUserApi from "../Apis/ChecklistUser";
 import ChecklistFolderApi from "../Apis/ChecklistFolder";
+import actions from "../State/Actions";
 
 export default function Login() {
   const history = useHistory();
+  const dispatch = useDispatch();
 
+  const loginError = useSelector((state) => state.user.loginError);
   const [passwordType, setPasswordType] = useState(() => "password");
-
   const [passwordVisible, setPasswordVisible] = useState(() => false);
-
   const [email, setEmail] = useState(() => "");
-
   const [password, setPassword] = useState(() => "");
 
-  const [loginError, setLoginError] = useState(() => "");
-
-  const dashboardRedirect = async () => {
+  const fetchFolders = async () => {
     const userInfo = decode(localStorage.getItem("checklist-auth-token"));
     const res = await ChecklistFolderApi.get(
       `/defaultFolder?userId=${userInfo._id}`
@@ -34,7 +32,7 @@ export default function Login() {
 
   useEffect(() => {
     if (localStorage.getItem("checklist-auth-token")) {
-      dashboardRedirect();
+      fetchFolders();
     }
   }, []);
 
@@ -49,18 +47,7 @@ export default function Login() {
   };
 
   const loginHandler = async () => {
-    try {
-      const res = await ChecklistUserApi.post("/login", {
-        email,
-        password,
-      });
-      if (res.status === 200) {
-        localStorage.setItem("checklist-auth-token", res.data.token);
-        history.push("/dashboard");
-      }
-    } catch (error) {
-      setLoginError(error.response.data.error);
-    }
+    dispatch(actions.loginUser({ email, password }));
   };
 
   return (
@@ -75,7 +62,7 @@ export default function Login() {
             value={email}
             onChange={(elem) => {
               setEmail(elem.target.value);
-              setLoginError("");
+              dispatch(actions.resetLoginError());
             }}
           />
         </div>
@@ -87,7 +74,7 @@ export default function Login() {
             value={password}
             onChange={(elem) => {
               setPassword(elem.target.value);
-              setLoginError("");
+              dispatch(actions.resetLoginError());
             }}
           />
           {passwordVisible ? (
