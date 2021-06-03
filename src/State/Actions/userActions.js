@@ -5,7 +5,6 @@ import history from "../../history";
 const loginUser =
   ({ email, password }) =>
   async (dispatch) => {
-    console.log({ email, password });
     try {
       const res = await ChecklistUserApi.post("/login", {
         email,
@@ -86,7 +85,9 @@ const registerUser =
         });
         history.push("/");
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
 const resetLoginError = () => async (dispatch) => {

@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import decode from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import "../Styles/login-register.css";
 
-import ChecklistFolderApi from "../Apis/ChecklistFolder";
 import actions from "../State/Actions";
 
 export default function Login() {
@@ -12,29 +10,31 @@ export default function Login() {
   const dispatch = useDispatch();
 
   const loginError = useSelector((state) => state.user.loginError);
+  const folders = useSelector((state) => state.checklist.folders);
+
   const [passwordType, setPasswordType] = useState(() => "password");
   const [passwordVisible, setPasswordVisible] = useState(() => false);
   const [email, setEmail] = useState(() => "");
   const [password, setPassword] = useState(() => "");
 
-  const fetchFolders = async () => {
-    const userInfo = decode(localStorage.getItem("checklist-auth-token"));
-    const res = await ChecklistFolderApi.get(
-      `/defaultFolder?userId=${userInfo._id}`
+  const redirectDefault = async () => {
+    const defaultFolder = folders.find(
+      (folder) => folder.name === "Default Folder"
     );
     history.push({
-      pathname: `/dashboard/${res.data.defaultFolder._id}`,
-      state: {
-        folder: res.data.defaultFolder,
-      },
+      pathname: `/dashboard/${defaultFolder._id}`,
     });
   };
 
   useEffect(() => {
     if (localStorage.getItem("checklist-auth-token")) {
-      fetchFolders();
+      dispatch(actions.fetchFolders());
     }
   }, []);
+
+  useEffect(() => {
+    if (folders) redirectDefault();
+  }, [folders]);
 
   const visibilityHandler = () => {
     if (passwordVisible) {

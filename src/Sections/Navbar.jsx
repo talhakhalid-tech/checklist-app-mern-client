@@ -1,31 +1,22 @@
 import React, { useEffect, useState } from "react";
-import decode from "jwt-decode";
+import { useDispatch, useSelector } from "react-redux";
 import "../Styles/navbar.css";
 
-import ChecklistFolderApi from "../Apis/ChecklistFolder";
 import AppModal from "../Components/AppModal";
+import actions from "../State/Actions";
 
 export default function Navbar({ folderSelectEnabled = false }) {
-  const [folders, setFolders] = useState(() => []);
+  const dispatch = useDispatch();
+  const folders = useSelector((state) => state.checklist.folders);
   const [addModal, setAddModal] = useState(() => false);
   const [folderName, setFolderName] = useState(() => "");
 
-  const fetchFolders = async () => {
-    try {
-      const userId = decode(localStorage.getItem("checklist-auth-token"))._id;
-      const res = await ChecklistFolderApi.get(`/all?userId=${userId}`);
-      setFolders(res.data.folders);
-    } catch (error) {
-      alert(error.response.data.error);
-    }
-  };
-
   useEffect(() => {
-    fetchFolders();
+    dispatch(actions.fetchFolders());
   }, []);
 
   const renderFolders = () => {
-    if (folders.length > 0)
+    if (folders?.length)
       return folders.map((folder, i) => {
         if (i === 0)
           return (
@@ -43,6 +34,7 @@ export default function Navbar({ folderSelectEnabled = false }) {
       return;
     }
 
+    
     setAddModal(false);
     setFolderName("");
   };

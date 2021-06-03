@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import Navbar from "../Sections/Navbar";
+import { useSelector } from "react-redux";
 import "../Styles/dashboard.css";
 
 import AppModal from "../Components/AppModal";
 
 export default function Dashboard({ match, location }) {
   console.log(match.params.folderId);
-  console.log(location.state);
 
   const [checklists, setChecklists] = useState(() => []);
 
