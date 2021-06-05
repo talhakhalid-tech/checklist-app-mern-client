@@ -68,6 +68,7 @@
 }
 .dashboard-checklist-delete-icon {
   font-size: 20px;
+  cursor: pointer;
 }
 .dashboard-checklist-addbtn {
   width: 100%;

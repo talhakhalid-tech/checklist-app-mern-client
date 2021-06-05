@@ -12,7 +12,7 @@ const loginUser =
       });
       if (res.status === 200) {
         localStorage.setItem("checklist-auth-token", res.data.token);
-        history.push("/dashboard");
+        history.go(0);
       }
     } catch (error) {
       dispatch({ type: "LOGIN_ERROR", payload: error.response.data.error });

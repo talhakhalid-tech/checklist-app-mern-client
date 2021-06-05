@@ -1,27 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../Sections/Navbar";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import "../Styles/dashboard.css";
 
 import AppModal from "../Components/AppModal";
+import actions from "../State/Actions";
 
-export default function Dashboard({ match, location }) {
-  console.log(match.params.folderId);
+export default function Dashboard({ match }) {
+  const dispatch = useDispatch();
 
-  const [checklists, setChecklists] = useState(() => []);
+  const [checklists, folderName] = useSelector((state) => {
+    if (Array.isArray(state.checklist.folders)) {
+      const folder = state.checklist.folders.find((folder) => {
+        if (folder._id === match.params.folderId) return folder;
+      });
+      return folder ? [folder.checklists, folder.name] : [[], ""];
+    }
+    return [[], ""];
+  });
 
   const [addModal, setAddModal] = useState(() => false);
   const [checklistName, setChecklistName] = useState(() => "");
+
+  useEffect(() => {
+    dispatch(actions.fetchFolders());
+  }, []);
+
+  const deleteChecklist = (checklistId) => {
+    dispatch(
+      actions.deleteChecklist({ folderId: match.params.folderId, checklistId })
+    );
+  };
 
   const renderChecklistsList = () => {
     return checklists.map((checklist) => {
       return (
         <tr>
-          <td>{checklist.name}</td>
-          <td>{checklist.completedTasks}</td>
-          <td>{checklist.totalTasks}</td>
+          <td>{checklist.checklistName}</td>
           <td>
-            <span className="dashboard-checklist-delete-icon">
+            {checklist.checklistItems.reduce((prevState, item) => {
+              if (item.checked) {
+                return (prevState += 1);
+              }
+            }, 0)}
+          </td>
+          <td>{checklist.checklistItems.length}</td>
+          <td>
+            <span
+              className="dashboard-checklist-delete-icon"
+              onClick={() => deleteChecklist(checklist._id)}
+            >
               <i class="far fa-trash-alt"></i>
             </span>
           </td>
@@ -35,18 +63,15 @@ export default function Dashboard({ match, location }) {
   };
 
   const onChecklistAdd = () => {
-    if (checklistName.length < 3) {
+    if (checklistName.length < 5) {
       return;
     }
-    setChecklists((prevState) => {
-      if (!prevState.some((checklist) => checklist.name === checklistName))
-        prevState.push({
-          name: checklistName,
-          completedTasks: 0,
-          totalTasks: 0,
-        });
-      return prevState;
-    });
+    dispatch(
+      actions.createChecklist({
+        name: checklistName,
+        folderId: match.params.folderId,
+      })
+    );
     setAddModal(false);
     setChecklistName("");
   };
@@ -62,12 +87,10 @@ export default function Dashboard({ match, location }) {
         setModalInput={(value) => setChecklistName(value)}
         onModalSave={onChecklistAdd}
       />
-      <Navbar folderSelectEnabled={true} />
+      <Navbar folderSelectEnabled={true} folderId={match.params.folderId} />
       <div className="dashboard-container">
         <div className="dashboard-header">
-          <div className="dashboard-folder-name">
-            Folder Name: Default Folder
-          </div>
+          <div className="dashboard-folder-name">Folder Name: {folderName}</div>
           <div className="dashboard-searchbar">
             <input type="text" placeholder="Search Checklist..." />
             <span className="dashboard-searchbar-icon">

@@ -3,23 +3,6 @@ import ReactDOM from "react-dom";
 import Modal from "react-modal";
 import "../Styles/modal.css";
 
-// const customStyles = {
-//   content: {
-//     width: "40vw",
-//     height: "30vh",
-//     top: "50%",
-//     left: "50%",
-//     right: "auto",
-//     bottom: "auto",
-//     marginRight: "-50%",
-//     transform: "translate(-50%, -50%)",
-//     display: "flex",
-//     flexDirection: "column",
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-// };
-
 Modal.setAppElement("#root");
 
 export default function AppModal({
@@ -31,6 +14,7 @@ export default function AppModal({
   onCloseModal = null,
   modalInput = "",
   setModalInput = null,
+  closeHandler = null,
 }) {
   function onCloseModal() {
     setIsOpen(false);
@@ -40,12 +24,15 @@ export default function AppModal({
     <div>
       <Modal
         isOpen={modalIsOpen}
-        onRequestClose={onCloseModal}
+        onRequestClose={closeHandler ? closeHandler : onCloseModal}
         // style={customStyles}
         contentLabel="Example Modal"
         className="modal-container"
       >
-        <span className="modal-close-icon" onClick={onCloseModal}>
+        <span
+          className="modal-close-icon"
+          onClick={closeHandler ? closeHandler : onCloseModal}
+        >
           <i class="fas fa-times"></i>
         </span>
         <div className="modal-heading">{modalTitle}</div>

@@ -4,8 +4,9 @@ import "../Styles/navbar.css";
 
 import AppModal from "../Components/AppModal";
 import actions from "../State/Actions";
+import history from "../history";
 
-export default function Navbar({ folderSelectEnabled = false }) {
+export default function Navbar({ folderSelectEnabled = false, folderId = "" }) {
   const dispatch = useDispatch();
   const folders = useSelector((state) => state.checklist.folders);
   const [addModal, setAddModal] = useState(() => false);
@@ -18,23 +19,26 @@ export default function Navbar({ folderSelectEnabled = false }) {
   const renderFolders = () => {
     if (folders?.length)
       return folders.map((folder, i) => {
-        if (i === 0)
+        if (folder._id === folderId.toString())
           return (
             <option value={folder._id} selected>
               {folder.name}
             </option>
           );
-        return <option value={folder._id}>{folder.name}</option>;
+        return (
+          <option value={folder._id} onClick={folderSelectHandler}>
+            {folder.name}
+          </option>
+        );
       });
     return <></>;
   };
 
   const onFolderAdd = () => {
-    if (folderName.length < 3) {
+    if (folderName.length < 5) {
       return;
     }
-
-    
+    dispatch(actions.createFolder({ name: folderName }));
     setAddModal(false);
     setFolderName("");
   };
@@ -42,7 +46,14 @@ export default function Navbar({ folderSelectEnabled = false }) {
   const folderSelectHandler = (elem) => {
     if (elem.target.value === "Add") {
       setAddModal(true);
+    } else {
+      history.push(`/dashboard/${elem.target.value}`);
     }
+  };
+
+  const closeHandler = () => {
+    setAddModal(false);
+    history.push(`/dashboard/${folderId}`);
   };
 
   return (
@@ -55,6 +66,7 @@ export default function Navbar({ folderSelectEnabled = false }) {
         modalInput={folderName}
         setModalInput={(value) => setFolderName(value)}
         onModalSave={onFolderAdd}
+        closeHandler={closeHandler}
       />
       <div className="navbar">
         <div className="navbar-title">CheckList App</div>
