@@ -66,6 +66,9 @@
   padding: 5px 10px;
   color: grey;
 }
+.dashboard-checklist-name {
+  cursor: pointer;
+}
 .dashboard-checklist-delete-icon {
   font-size: 20px;
   cursor: pointer;

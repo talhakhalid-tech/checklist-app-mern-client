@@ -9,6 +9,7 @@ import Login from "./Screens/Login";
 import Register from "./Screens/Register";
 import Dashboard from "./Screens/Dashboard";
 import Checklist from "./Screens/Checklist";
+import ChecklistRead from "./Screens/ChecklistRead";
 
 function App() {
   return (
@@ -23,9 +24,14 @@ function App() {
             component={Dashboard}
           />
           <PrivateRoute
-            path="/checklist/:checklistId"
+            path="/checklist/:folderId/:checklistId"
             exact
             component={Checklist}
+          />
+          <Route
+            path="/checklistRead/:folderId/:checklistId"
+            exact
+            component={ChecklistRead}
           />
         </Switch>
       </div>

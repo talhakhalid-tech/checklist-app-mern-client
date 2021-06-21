@@ -60,4 +60,117 @@ const deleteChecklist =
     }
   };
 
-export default { fetchFolders, createFolder, createChecklist, deleteChecklist };
+const openChecklist =
+  ({ folderId, checklistId, checklist }) =>
+  (dispatch) => {
+    try {
+      history.push(`/checklist/${folderId}/${checklistId}`);
+      dispatch({
+        type: "SET_CHECKLIST",
+        payload: checklist,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+const addChecklistItem = (folderId, checklistId, item) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "ADD_CHECKLIST_ITEM",
+      payload: item,
+    });
+    await ChecklistFolderApi.post("/addChecklistItem", {
+      folderId,
+      checklistId,
+      item,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateChecklistItem =
+  (folderId, checklistId, item) => async (dispatch) => {
+    try {
+      dispatch({
+        type: "UPDATE_CHECKLIST_ITEM",
+        payload: item,
+      });
+      await ChecklistFolderApi.patch("/updateChecklistItem", {
+        folderId,
+        checklistId,
+        item,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+const deleteChecklistItem =
+  (folderId, checklistId, itemId) => async (dispatch) => {
+    try {
+      dispatch({
+        type: "DELETE_CHECKLIST_ITEM",
+        payload: itemId,
+      });
+
+      await ChecklistFolderApi.delete(
+        `/deleteChecklistItem?folderId=${folderId}&checklistId=${checklistId}&itemId=${itemId}`
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+const getReadOnlyChecklist = (folderId, checklistId) => async (dispatch) => {
+  try {
+    const res = await ChecklistFolderApi.get(
+      `/getChecklist?folderId=${folderId}&checklistId=${checklistId}`
+    );
+    dispatch({
+      type: "SET_READONLY_CHECKLIST",
+      payload: res.data.checklist,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const saveChecklist =
+  (folderId, checklistId, checklist) => async (dispatch) => {
+    try {
+      const res = await ChecklistFolderApi.post("/saveChecklist", {
+        folderId,
+        checklistId,
+        checklist,
+      });
+      if (res.status === 202) {
+        history.push(`/dashboard/${folderId}`);
+      }
+    } catch (error) {
+      alert("Oop, An Error Occured While Saving Checklist");
+    }
+  };
+
+const resetAll = () => async (dispatch) => {
+  await localStorage.removeItem("checklist-auth-token");
+  dispatch({
+    type: "RESET_ALL",
+  });
+  history.push("/");
+};
+
+export default {
+  fetchFolders,
+  createFolder,
+  createChecklist,
+  deleteChecklist,
+  openChecklist,
+  addChecklistItem,
+  updateChecklistItem,
+  deleteChecklistItem,
+  getReadOnlyChecklist,
+  saveChecklist,
+  resetAll,
+};

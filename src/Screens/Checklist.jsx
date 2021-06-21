@@ -1,71 +1,80 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import "../Styles/checklist.css";
 
+import actions from "../State/Actions";
 import Navbar from "../Sections/Navbar";
 
-export default function Checklist() {
-  const [checklist, setChecklist] = useState(() => {
+import history from "../history";
+
+export default function Checklist({ match }) {
+  const [checklist, checklistName] = useSelector((state) => {
+    if (!state.checklist.currentChecklist) {
+      history.push(`/dashboard/${match.params.folderId}`);
+      return [[], ""];
+    }
     return [
-      {
-        title: "item 1",
-        checked: true,
-      },
-      {
-        title: "item 2",
-        checked: true,
-      },
-      {
-        title: "item 3",
-        checked: false,
-      },
-      {
-        title: "item 4",
-        checked: false,
-      },
-      {
-        title: "item 5",
-        checked: false,
-      },
+      state.checklist.currentChecklist.checklistItems,
+      state.checklist.currentChecklist.checklistName,
     ];
   });
+
+  const dispatch = useDispatch();
 
   const [adderEnabled, setAdderEnabled] = useState(() => false);
   const [newChecklistValue, setNewChecklistValue] = useState(() => "");
   const [editor, setEditor] = useState(() => {
-    return { title: "", enabled: false };
+    return { _id: "", item: "", enabled: false };
   });
 
+  var mongoObjectIdGenerator = function () {
+    var timestamp = ((new Date().getTime() / 1000) | 0).toString(16);
+    return (
+      timestamp +
+      "xxxxxxxxxxxxxxxx"
+        .replace(/[x]/g, function () {
+          return ((Math.random() * 16) | 0).toString(16);
+        })
+        .toLowerCase()
+    );
+  };
+
   const editHandler = (item) => {
-    setNewChecklistValue(item.title);
-    setEditor({
-      title: item.title,
-      enabled: true,
-    });
+    setNewChecklistValue(item.item);
+    setEditor({ _id: item._id, item: item.item, enabled: true });
   };
 
   const onEditItem = (item) => {
     if (newChecklistValue.length < 3) {
       return;
     }
-    setChecklist((prevState) => {
-      if (!prevState.some((newItem) => newItem.title === newChecklistValue))
-        return prevState.map((newItem) => {
-          if (newItem.title === item.title)
-            return {
-              ...newItem,
-              title: newChecklistValue,
-            };
-          return newItem;
-        });
-      return prevState;
-    });
-    setEditor({ title: "", enabled: false });
+    dispatch(
+      actions.updateChecklistItem(
+        match.params.folderId,
+        match.params.checklistId,
+        {
+          ...item,
+          item: newChecklistValue,
+        }
+      )
+    );
+    setEditor({ _id: "", item: "", enabled: false });
     setNewChecklistValue("");
+  };
+
+  const deleteHandler = (itemId) => {
+    dispatch(
+      actions.deleteChecklistItem(
+        match.params.folderId,
+        match.params.checklistId,
+        itemId
+      )
+    );
   };
 
   const renderList = () => {
     return checklist.map((item) => {
-      if (editor.enabled && editor.title === item.title) {
+      if (editor.enabled && editor._id === item._id.toString()) {
         return (
           <div className="checklist-single">
             <input
@@ -94,28 +103,31 @@ export default function Checklist() {
             type="checkbox"
             className="checklist-checkbox"
             checked={item.checked}
-            onClick={() =>
-              setChecklist((prevState) => {
-                return prevState.map((newItem) => {
-                  if (newItem.title === item.title) {
-                    return {
-                      title: newItem.title,
-                      checked: !newItem.checked,
-                    };
+            onClick={() => {
+              dispatch(
+                actions.updateChecklistItem(
+                  match.params.folderId,
+                  match.params.checklistId,
+                  {
+                    _id: item._id,
+                    item: item.item,
+                    checked: !item.checked,
                   }
-                  return newItem;
-                });
-              })
-            }
+                )
+              );
+            }}
           />
-          <label className="checklist-text">{item.title}</label>
+          <label className="checklist-text">{item.item}</label>
           <span
             className="checklist-edit-icon"
             onClick={() => editHandler(item)}
           >
             <i class="far fa-edit"></i>
           </span>
-          <span className="checklist-delete-icon">
+          <span
+            className="checklist-delete-icon"
+            onClick={() => deleteHandler(item._id)}
+          >
             <i class="far fa-trash-alt"></i>
           </span>
         </div>
@@ -130,17 +142,21 @@ export default function Checklist() {
   };
 
   const onAddItem = () => {
-    if (newChecklistValue.length < 3) {
+    if (newChecklistValue.length < 10) {
       return;
     }
-    setChecklist((prevState) => {
-      if (!prevState.some((item) => item.title === newChecklistValue))
-        prevState.push({
-          title: newChecklistValue,
+    const _id = mongoObjectIdGenerator();
+    dispatch(
+      actions.addChecklistItem(
+        match.params.folderId,
+        match.params.checklistId,
+        {
+          _id,
+          item: newChecklistValue,
           checked: false,
-        });
-      return prevState;
-    });
+        }
+      )
+    );
     setAdderEnabled(false);
     setNewChecklistValue("");
   };
@@ -162,12 +178,18 @@ export default function Checklist() {
     );
   };
 
+  const getShareableLink = () => {
+    return `${window.location.origin}/checklistRead/${btoa(
+      match.params.folderId
+    )}/${btoa(match.params.checklistId)}`;
+  };
+
   return (
     <div>
-      <Navbar folderSelectEnabled={true} />
+      <Navbar folderSelectEnabled={true} folderId={match.params.folderId} />
       <div className="checklist-container">
         <div className="checklist-left-segment">
-          <div className="checklist-heading">CheckList 1</div>
+          <div className="checklist-heading">{checklistName}</div>
           <div className="checklist-list">
             {renderList()}
             {adderEnabled ? showAdder() : <></>}
@@ -186,12 +208,23 @@ export default function Checklist() {
               type="text"
               className="checklist-sharelink-box"
               disabled={true}
-              value="https://www.checkli.com/process/60ae37316c4a3"
+              value={getShareableLink()}
             />
           </div>
-          <div className="checklist-delete-button-box">
-            <button className="checklist-delete-button">
-              Delete Checklist
+          <div className="checklist-save-button-box">
+            <button
+              className="checklist-save-button"
+              onClick={() =>
+                dispatch(
+                  actions.saveChecklist(
+                    match.params.folderId,
+                    match.params.checklistId,
+                    checklist
+                  )
+                )
+              }
+            >
+              Save Checklist
             </button>
           </div>
         </div>

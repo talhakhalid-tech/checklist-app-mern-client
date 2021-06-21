@@ -13,7 +13,7 @@ export default function Navbar({ folderSelectEnabled = false, folderId = "" }) {
   const [folderName, setFolderName] = useState(() => "");
 
   useEffect(() => {
-    dispatch(actions.fetchFolders());
+    if (folderSelectEnabled) dispatch(actions.fetchFolders());
   }, []);
 
   const renderFolders = () => {
@@ -56,6 +56,14 @@ export default function Navbar({ folderSelectEnabled = false, folderId = "" }) {
     history.push(`/dashboard/${folderId}`);
   };
 
+  const logoutHandler = () => {
+    dispatch(actions.resetAll());
+  };
+
+  const dashboardHandler = () => {
+    history.push(`/dashboard/${folderId}`);
+  };
+
   return (
     <>
       <AppModal
@@ -85,9 +93,16 @@ export default function Navbar({ folderSelectEnabled = false, folderId = "" }) {
           <></>
         )}
         <div className="navbar-btns">
-          <div className="navbar-btn navbar-dashboard-btn">Dashboard</div>
-          <div className="navbar-btn navbar-profile-btn">Profile</div>
-          <div className="navbar-btn navbar-logout-btn">Logout</div>
+          <div
+            className="navbar-btn navbar-dashboard-btn"
+            onClick={dashboardHandler}
+          >
+            Dashboard
+          </div>
+          {/* <div className="navbar-btn navbar-profile-btn">Profile</div> */}
+          <div className="navbar-btn navbar-logout-btn" onClick={logoutHandler}>
+            Logout
+          </div>
         </div>
       </div>
     </>

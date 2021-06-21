@@ -32,16 +32,32 @@ export default function Dashboard({ match }) {
     );
   };
 
+  const checklistClickHandler = (checklist) => {
+    dispatch(
+      actions.openChecklist({
+        folderId: match.params.folderId,
+        checklistId: checklist._id,
+        checklist,
+      })
+    );
+  };
+
   const renderChecklistsList = () => {
     return checklists.map((checklist) => {
       return (
-        <tr>
-          <td>{checklist.checklistName}</td>
+        <tr key={checklist._id}>
+          <td
+            className="dashboard-checklist-name"
+            onClick={() => checklistClickHandler(checklist)}
+          >
+            {checklist.checklistName}
+          </td>
           <td>
             {checklist.checklistItems.reduce((prevState, item) => {
               if (item.checked) {
                 return (prevState += 1);
               }
+              return prevState;
             }, 0)}
           </td>
           <td>{checklist.checklistItems.length}</td>
@@ -50,7 +66,7 @@ export default function Dashboard({ match }) {
               className="dashboard-checklist-delete-icon"
               onClick={() => deleteChecklist(checklist._id)}
             >
-              <i class="far fa-trash-alt"></i>
+              <i className="far fa-trash-alt"></i>
             </span>
           </td>
         </tr>
@@ -121,7 +137,7 @@ export default function Dashboard({ match }) {
           <div className="dashboard-checklist-addbtn" onClick={openAddModal}>
             Click to Add Checklist{" "}
             <span>
-              <i class="fas fa-plus"></i>
+              <i className="fas fa-plus"></i>
             </span>
           </div>
         </div>
